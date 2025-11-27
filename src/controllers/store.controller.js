@@ -6,7 +6,8 @@ export const handleAddReview = async (req, res, next) => {
   console.log("[POST] /stores/:storeId/reviews hit", req.params, req.body);
   const storeId = Number(req.params.storeId);
   const review = bodyToReview(req.body);
-  const result = await addReviewToStore({ storeId, review });
+  const memberId = req.user.id;
+  const result = await addReviewToStore({ storeId, review, memberId });
   res.status(StatusCodes.CREATED).success(result);
 };
 

@@ -1,21 +1,19 @@
 import {
   MissionNotFoundError,
-  NoMemberError,
+  InvalidRequestError,
   AlreadyChallengedError,
 } from "../errors.js";
-import { getFirstMemberId } from "../repositories/common.repository.js";
 import { existsMission, isAlreadyChallenging, addMemberMission } from "../repositories/mission.repository.js";
 import { prisma } from "../db.config.js";
 import { findOngoingByUser } from "../repositories/userMission.repository.js";
 
-export const challengeMission = async ({ missionId }) => {
+export const challengeMission = async ({ missionId, memberId }) => {
   if (!(await existsMission(missionId))) {
     throw new MissionNotFoundError("미션을 찾을 수 없습니다.", { missionId });
   }
 
-  const memberId = await getFirstMemberId();
   if (!memberId) {
-    throw new NoMemberError("회원 정보를 찾을 수 없습니다.", null);
+    throw new InvalidRequestError("회원 정보를 찾을 수 없습니다.", null);
   }
 
   if (await isAlreadyChallenging({ memberId, missionId })) {

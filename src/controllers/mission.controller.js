@@ -8,7 +8,8 @@ export const handleChallengeMission = async (req, res, next) => {
     throw new InvalidRequestError("유효하지 않은 missionId입니다.", { missionId });
   }
 
-  const result = await challengeMission({ missionId });
+  const memberId = req.user.id;
+  const result = await challengeMission({ missionId, memberId });
   res.status(StatusCodes.CREATED).success(result);
 };
 
@@ -16,6 +17,11 @@ export const handleListOngoingMissions = async (req, res, next) => {
   const userId = Number(req.params.userId);
   if (!Number.isInteger(userId) || userId <= 0) {
     throw new InvalidRequestError("유효하지 않은 userId입니다.", { userId });
+  }
+
+  // 본인만 조회 가능하도록 권한 검증
+  if (req.user.id !== userId) {
+    throw new InvalidRequestError("본인의 미션만 조회할 수 있습니다.", { userId, currentUserId: req.user.id });
   }
 
   const result = await listOngoingMissions({ userId });

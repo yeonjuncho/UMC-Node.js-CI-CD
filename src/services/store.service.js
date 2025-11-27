@@ -1,20 +1,17 @@
 import {
   StoreNotFoundError,
-  NoMemberError,
   InvalidReviewScoreError,
   InvalidRequestError,
 } from "../errors.js";
-import { getFirstMemberId } from "../repositories/common.repository.js";
 import { existsStore, createMission, createReviewWithImages } from "../repositories/store.repository.js";
 
-export const addReviewToStore = async ({ storeId, review }) => {
+export const addReviewToStore = async ({ storeId, review, memberId }) => {
   if (!(await existsStore(storeId))) {
     throw new StoreNotFoundError("매장을 찾을 수 없습니다.", { storeId });
   }
 
-  const memberId = await getFirstMemberId();
   if (!memberId) {
-    throw new NoMemberError("회원 정보를 찾을 수 없습니다.", null);
+    throw new InvalidRequestError("회원 정보를 찾을 수 없습니다.", null);
   }
 
   // score 기본 검증
