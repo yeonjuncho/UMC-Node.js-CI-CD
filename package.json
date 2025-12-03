@@ -16,9 +16,6 @@
     "dotenv": "^17.2.3",
     "express": "^5.0.1",
     "http-status-codes": "^2.3.0",
-<<<<<<< Updated upstream
-    "morgan": "^1.10.1"
-=======
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "passport": "^0.7.0",
@@ -26,7 +23,6 @@
     "passport-jwt": "^4.0.1",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1"
->>>>>>> Stashed changes
   },
   "devDependencies": {
     "nodemon": "^3.1.4",
