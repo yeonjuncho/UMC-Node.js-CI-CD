@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int                @id @default(autoincrement())
+  email         String             @unique
+  name          String
+  gender        String
+  birth         DateTime
+  address       String?            @default("")
+  detailAddress String?            @default("")
+  phoneNumber   String
+  nickname      String
+  reviews       Review[]
+  userMissions  UserMission[]
+  userFavorCategories UserFavorCategory[]
+  createdAt     DateTime           @default(now())
+}
+
+model Store {
+  id        Int       @id @default(autoincrement())
+  name      String
+  reviews   Review[]
+  missions  Mission[]
+  createdAt DateTime  @default(now())
+}
+
+model Review {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  storeId   Int
+  rating    Int       // 1~5
+  content   String
+  images    ReviewImage[]
+  user      User      @relation(fields: [userId], references: [id])
+  store     Store     @relation(fields: [storeId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([storeId, createdAt])
+}
+
+model ReviewImage {
+  id       Int    @id @default(autoincrement())
+  reviewId Int
+  url      String
+  review   Review @relation(fields: [reviewId], references: [id])
+  // @@map("review_image")  <-- 삭제
+}
+
+model Mission {
+  id          Int       @id @default(autoincrement())
+  storeId     Int
+  title       String
+  rewardPoint Int       // 500P 같은 보상
+  minPrice    Int?      // 예: 12000원 이상 식사
+  store       Store     @relation(fields: [storeId], references: [id])
+  users       UserMission[]
+  createdAt   DateTime  @default(now())
+}
+
+enum MissionStatus {
+  ONGOING
+  COMPLETED
+}
+
+model UserMission {
+  id          Int           @id @default(autoincrement())
+  userId      Int
+  missionId   Int
+  status      MissionStatus @default(ONGOING)
+  startedAt   DateTime      @default(now())
+  completedAt DateTime?
+  user        User          @relation(fields: [userId], references: [id])
+  mission     Mission       @relation(fields: [missionId], references: [id])
+  @@unique([userId, missionId])
+  @@index([userId, status])
+  @@index([missionId])
+  // @@map("user_mission")  <-- 삭제
+}
+
+model FoodCategory {
+  id        Int                @id @default(autoincrement())
+  name      String
+  userFavorCategories UserFavorCategory[]
+  createdAt DateTime           @default(now())
+}
+
+model UserFavorCategory {
+  id            Int           @id @default(autoincrement())
+  userId        Int
+  foodCategoryId Int
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodCategory  FoodCategory  @relation(fields: [foodCategoryId], references: [id])
+  createdAt     DateTime      @default(now())
+  
+  @@unique([userId, foodCategoryId])
+  @@index([userId])
+  @@index([foodCategoryId])
+}
