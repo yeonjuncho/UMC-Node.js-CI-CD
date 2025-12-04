@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # Prisma 폴더가 변경되었는지 감지하는 단계 
+      - name: Check prisma has changes
+        uses: dorny/paths-filter@v3
+        id: paths-filter
+        with:
+          filters: |
+            prisma: ["prisma/**"]
 
       - name: Configure SSH
         run: |
@@ -41,6 +48,12 @@ jobs:
       - name: Install dependencies
         run: |
           ssh umc9thworkbook 'npm install --prefix /opt/app/'
+          ssh umc9thworkbook 'cd /opt/app; npx prisma generate'
+          
+      - name: Apply prisma migrations
+        if: steps.paths-filter.outputs.prisma == 'true'
+        run: |
+          ssh umc9thworkbook 'cd /opt/app; npx prisma migrate deploy'
 
       - name: Copy systemd service file
         run: |
